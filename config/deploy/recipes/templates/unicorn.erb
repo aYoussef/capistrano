@@ -1,0 +1,8 @@
+working_directory "/var/www/<%= fetch(:application) %>"
+pid "/home/<%= fetch(:user) %>/unicorn/pid/unicorn.pid"
+stderr_path "/home/<%= fetch(:user) %>/unicorn/logs/error.log"
+stdout_path "/home/<%= fetch(:user) %>/unicorn/logs/unicorn.log"
+
+listen "/tmp/unicorn.<%= fetch(:application) %>.sock"
+worker_processes 2
+timeout 30

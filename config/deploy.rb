@@ -1,14 +1,22 @@
 # config valid only for Capistrano 3.1
 lock '3.1.0'
 
-set :application, 'capistrano'
-set :repo_url, 'git@github.com:overc/capistrano.git'
+#Loading the capistrano deploy path
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'deploy')
 
+#Require the recipes
+require "recipes/common"
+require "recipes/nginx"
+require "recipes/server_init"
+
+set :application, 'capistrano'
+set :repo_url, 'git@github.com:aYoussef/capistrano.git'
+set :use_sudo, true
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
 
 # Default deploy_to directory is /var/www/my_app
-# set :deploy_to, '/var/www/my_app'
+set :deploy_to, "/var/www/#{fetch(:application)}"
 
 # Default value for :scm is :git
 # set :scm, :git
@@ -20,7 +28,7 @@ set :repo_url, 'git@github.com:overc/capistrano.git'
 # set :log_level, :debug
 
 # Default value for :pty is false
-# set :pty, true
+set :pty, true
 
 # Default value for :linked_files is []
 # set :linked_files, %w{config/database.yml}
@@ -39,6 +47,8 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
+      sudo 'service nginx restart'
+      execute "unicorn --config-file /home/#{fetch(:user)}/unicorn/unicorn.conf restart"
       # Your restart mechanism here, for example:
       # execute :touch, release_path.join('tmp/restart.txt')
     end
